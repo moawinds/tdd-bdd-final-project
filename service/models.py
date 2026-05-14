@@ -74,4 +74,40 @@ class Product(db.Model):
             self.available = data["available"]
             self.category = data["category"]
         except KeyError as error:
-            raise DataValidationError("Invalid Product: missing " + error.args
+            raise DataValidationError("Invalid Product: missing " + error.args[0])
+        except TypeError as error:
+            raise DataValidationError("Invalid Product: body of request contained bad data - " + str(error))
+        return self
+
+    @classmethod
+    def init_db(cls, app):
+        """Inisialisasi database"""
+        cls.app = app
+        db.init_app(app)
+        app.app_context().push()
+        db.create_all()
+
+    @classmethod
+    def all(cls):
+        """Mengambil semua produk"""
+        return cls.query.all()
+
+    @classmethod
+    def find(cls, by_id):
+        """Mencari produk berdasarkan ID"""
+        return cls.query.get(by_id)
+
+    @classmethod
+    def find_by_name(cls, name):
+        """Mencari produk berdasarkan Nama"""
+        return cls.query.filter(cls.name == name)
+
+    @classmethod
+    def find_by_category(cls, category):
+        """Mencari produk berdasarkan Kategori"""
+        return cls.query.filter(cls.category == category)
+
+    @classmethod
+    def find_by_availability(cls, available=True):
+        """Mencari produk berdasarkan Ketersediaan"""
+        return cls.query.filter(cls.available == available)
